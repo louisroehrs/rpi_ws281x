@@ -8,6 +8,10 @@
 import time
 from neopixel import *
 import argparse
+import math
+import random
+import os
+import os.path
 
 # LED strip configuration:
 LED_COUNT      = 150      # Number of LED pixels.
@@ -22,12 +26,30 @@ LED_CHANNEL    = 0       # set to '1' for GPIOs 13, 19, 41, 45 or 53
 
 
 # Define functions which animate LEDs in various ways.
+
+def candles(strip, iterations=1, wait_ms=20000):
+    """Wipe color across display a pixel at a time."""
+    for j in range(256*iterations):
+        time.sleep(wait_ms/1000.0)
+        for i in range(strip.numPixels()):
+            strip.setPixelColor(i, Color(int(math.sin(i*j)*random.randint(0, 128)+128),int(math.sin(i*j)*random.uniform(0,90)+128), 0))
+        strip.show()
+        if shouldstop():
+            return
+        
+
+        
+# Define functions which animate LEDs in various ways.
+
 def colorWipe(strip, color, wait_ms=20):
     """Wipe color across display a pixel at a time."""
     for i in range(strip.numPixels()):
         strip.setPixelColor(i, color)
         strip.show()
         time.sleep(wait_ms/1000.0)
+        if shouldstop():
+            return
+
 
 def theaterChase(strip, color, wait_ms=50, iterations=10):
     """Movie theater light style chaser animation."""
@@ -37,6 +59,8 @@ def theaterChase(strip, color, wait_ms=50, iterations=10):
                 strip.setPixelColor(i+q, color)
             strip.show()
             time.sleep(wait_ms/1000.0)
+            if shouldstop():
+                return
             for i in range(0, strip.numPixels(), 3):
                 strip.setPixelColor(i+q, 0)
 
@@ -58,6 +82,9 @@ def rainbow(strip, wait_ms=20, iterations=1):
             strip.setPixelColor(i, wheel((i+j) & 255))
         strip.show()
         time.sleep(wait_ms/1000.0)
+        if shouldstop():
+            return
+
 
 def rainbowCycle(strip, wait_ms=20, iterations=5):
     """Draw rainbow that uniformly distributes itself across all pixels."""
@@ -66,6 +93,9 @@ def rainbowCycle(strip, wait_ms=20, iterations=5):
             strip.setPixelColor(i, wheel((int(i * 256 / strip.numPixels()) + j) & 255))
         strip.show()
         time.sleep(wait_ms/1000.0)
+        if shouldstop():
+            return
+
 
 def theaterChaseRainbow(strip, wait_ms=50):
     """Rainbow movie theater light style chaser animation."""
@@ -75,8 +105,16 @@ def theaterChaseRainbow(strip, wait_ms=50):
                 strip.setPixelColor(i+q, wheel((i+j) % 255))
             strip.show()
             time.sleep(wait_ms/1000.0)
+            if shouldstop():
+                return
             for i in range(0, strip.numPixels(), 3):
                 strip.setPixelColor(i+q, 0)
+
+
+def shouldstop():
+    if os.path.exists("command.txt"):
+        return True
+    return False
 
 # Main program logic follows:
 if __name__ == '__main__':
@@ -95,20 +133,38 @@ if __name__ == '__main__':
         print('Use "-c" argument to clear LEDs on exit')
 
     try:
-
+        print("ready")
         while True:
-            print ('Color wipe animations.')
-            colorWipe(strip, Color(255, 0, 0))  # Red wipe
-            colorWipe(strip, Color(0, 255, 0))  # Blue wipe
-            colorWipe(strip, Color(0, 0, 255))  # Green wipe
-            print ('Theater chase animations.')
-            theaterChase(strip, Color(127, 127, 127))  # White theater chase
-            theaterChase(strip, Color(127,   0,   0))  # Red theater chase
-            theaterChase(strip, Color(  0,   0, 127))  # Blue theater chase
-            print ('Rainbow animations.')
-            rainbow(strip)
-            rainbowCycle(strip)
-            theaterChaseRainbow(strip)
+
+            if os.path.exists("command.txt"):
+                f = open ("command.txt","r")
+                if f.mode == 'r':
+                    contents =f.read()
+                    
+                    print(contents)
+                    f.close()
+                    os.remove("command.txt")
+                    if contents == "candles\n" :
+                        print ('Candle animation')
+                        candles(strip, 10, 20)
+                    if contents == "chase\n" :
+                        print ('Theatre chase animation')
+                        theaterChase(strip, Color(127, 127, 127))  
+                    if contents == "wipe\n" :
+                        print ('Wipe Candle animation')
+                        colorWipe(strip, Color(255, 0, 0))  # Red wipe
+#            print ('Color wipe animations.')
+#            colorWipe(strip, Color(255, 0, 0))  # Red wipe
+#            colorWipe(strip, Color(0, 255, 0))  # Blue wipe
+#            colorWipe(strip, Color(0, 0, 255))  # Green wipe
+#            print ('Theater chase animations.')
+#            theaterChase(strip, Color(127, 127, 127))  # White theater chase
+#            theaterChase(strip, Color(127,   0,   0))  # Red theater chase
+#            theaterChase(strip, Color(  0,   0, 127))  # Blue theater chase
+#            print ('Rainbow animations.')
+#            rainbow(strip)
+#            rainbowCycle(strip)
+#            theaterChaseRainbow(strip)
 
     except KeyboardInterrupt:
         if args.clear:
