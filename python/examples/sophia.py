@@ -149,8 +149,9 @@ if __name__ == '__main__':
                         print ('Theatre chase animation')
                         theaterChase(strip, Color(127, 127, 127))
                     if contents.startswith("wipe") :
+                        pieces = contents.split()
                         print ('Wipe Candle animation')
-                        colorWipe(strip, Color(255, 0, 0))  # Red wipe
+                        colorWipe(strip, Color(int(pieces[2]),int(pieces[1]),int(pieces[3])))  # Red wipe
                     if contents.startswith("rainbow") :
                         print ('Rainbow animation')
                         rainbowCycle(strip, 20, 100)
