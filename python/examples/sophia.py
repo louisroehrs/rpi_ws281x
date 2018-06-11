@@ -12,6 +12,7 @@ import math
 import random
 import os
 import os.path
+import string
 
 # LED strip configuration:
 LED_COUNT      = 150      # Number of LED pixels.
@@ -135,24 +136,29 @@ if __name__ == '__main__':
     try:
         print("ready")
         while True:
-
             if os.path.exists("command.txt"):
                 f = open ("command.txt","r")
-                if f.mode == 'r':
-                    contents =f.read()
-                    
-                    print(contents)
+                if f.mode == "r":
+                    contents = f.read()
                     f.close()
                     os.remove("command.txt")
-                    if contents == "candles\n" :
+                    if contents.startswith("candles") :
                         print ('Candle animation')
                         candles(strip, 10, 20)
-                    if contents == "chase\n" :
+                    if contents.startswith("chase") :
                         print ('Theatre chase animation')
-                        theaterChase(strip, Color(127, 127, 127))  
-                    if contents == "wipe\n" :
+                        theaterChase(strip, Color(127, 127, 127))
+                    if contents.startswith("wipe") :
                         print ('Wipe Candle animation')
                         colorWipe(strip, Color(255, 0, 0))  # Red wipe
+                    if contents.startswith("rainbow") :
+                        print ('Rainbow animation')
+                        rainbowCycle(strip, 20, 100)
+                    if contents.startswith("wheel") :
+                        print ('Wheel animation')
+                        wheel(200)
+                f.close()
+
 #            print ('Color wipe animations.')
 #            colorWipe(strip, Color(255, 0, 0))  # Red wipe
 #            colorWipe(strip, Color(0, 255, 0))  # Blue wipe
