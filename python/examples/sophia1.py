@@ -56,22 +56,21 @@ def copcar(strip, iterations=1, width=4, wait_ms=1000):
 
 def runway(strip, iterations=1, width=6, wait_ms=2000):
     """Wipe color across display a pixel at a time."""
-    j=0
-    while (j < iterations or iterations == -1):
+    for j in range(256*iterations):
         res = 20;   #resolution, more steps equals smoother animation.
-        for x in range(20):
-            time.sleep(wait_ms/20000.0)
+        for x in range(res):
+            time.sleep(wait_ms/res/1000.0)
             section = width*2;
             for i in range(strip.numPixels()):
-                strip.setPixelColor(i,         #bright cycle                                off cycle
-                                    Color(int((x % 20)*255/res*((i+j*4) % section < width) + (10-min(x % 20,10))*((i+j*4) % section >= width)),
-                                          int((x % 20)*255/res*((i+j*4) % section < width) + (10-min(x % 20,10))*((i+j*4) % section >= width)),
+                colr = int((x % res)/res/2*255*((i+j*4) % section < width) + (res- (x % res))*((i+j*4) % section >= width))
+                strip.setPixelColor(i,
+                                    Color( colr,
+                                           colr,
                                           0
                                       ))
             strip.show()
             if shouldstop():
                 return
-        j+=1
 
 
         
@@ -195,7 +194,7 @@ if __name__ == '__main__':
                         copcar(strip, 20, 4, 100)
                     if contents.startswith("runway") :
                         print ('Runway enterance animation')
-                        runway(strip, -1, 4, 1000)
+                        runway(strip, 20, 4, 1000)
                     if contents.startswith("wheel") :
                         print ('Wheel animation')
                         wheel(200)
